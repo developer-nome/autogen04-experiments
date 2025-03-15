@@ -30,11 +30,10 @@
 import os
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import LLMChainExtractor
-from langchain_community.document_loaders import TextLoader
+from langchain.retrievers.document_compressors import LLMListwiseRerank
 from langchain_community.document_loaders import Docx2txtLoader
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import CharacterTextSplitter
-from langchain_openai import OpenAI
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
@@ -60,12 +59,23 @@ llm = ChatOpenAI(
         api_key=os.getenv("OPEN_AI_API_KEY"),
         temperature=0
 )
-compressor = LLMChainExtractor.from_llm(llm)
+
+# NOTE: DO NOT USE LLMChainFilter.from_llm(llm)
+# ^The results are not close
+
+# # NOTE: The LLMChainExtractor compressor was fairly good
+# compressor = LLMChainExtractor.from_llm(llm)
+# compression_retriever = ContextualCompressionRetriever(
+#     base_compressor=compressor, base_retriever=retriever
+# )
+
+_filter = LLMListwiseRerank.from_llm(llm, top_n=1)
 compression_retriever = ContextualCompressionRetriever(
-    base_compressor=compressor, base_retriever=retriever
+    base_compressor=_filter, base_retriever=retriever
 )
 
+# "What did the Qunnect team build to compensate for disturbances of their polarization by vibrations?"
 compressed_docs = compression_retriever.invoke(
-    "What did the Qunnect team build to compensate for disturbances of their polarization by vibrations?"
+    "Was Mehdi Namazi involved?"
 )
 pretty_print_docs(compressed_docs)
