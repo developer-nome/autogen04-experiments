@@ -40,8 +40,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def pretty_print_docs(docs):
-    print(
+def pretty_print_docs(docs) -> str:
+    return(
         f"\n{'-' * 100}\n".join(
             [f"Document {i+1}:\n\n" + d.page_content for i, d in enumerate(docs)]
         )
@@ -55,6 +55,7 @@ retriever = FAISS.from_documents(texts, OpenAIEmbeddings(
 )).as_retriever()
 
 llm = ChatOpenAI(
+        # base_url='http://127.0.0.1:1234/v1',
         model='gpt-4o-mini',
         api_key=os.getenv("OPEN_AI_API_KEY"),
         temperature=0
@@ -74,8 +75,27 @@ compression_retriever = ContextualCompressionRetriever(
     base_compressor=_filter, base_retriever=retriever
 )
 
+question_for_RAG = "Was Mehdi Namazi involved?"
 # "What did the Qunnect team build to compensate for disturbances of their polarization by vibrations?"
 compressed_docs = compression_retriever.invoke(
-    "Was Mehdi Namazi involved?"
+    question_for_RAG
 )
-pretty_print_docs(compressed_docs)
+initial_response = pretty_print_docs(compressed_docs)
+print(initial_response)
+
+print("--------------------")
+print("---Re-summarized----")
+print("--------------------")
+
+messages = [
+    (
+        "system",
+        "You are a helpful assistant.",
+    ),
+    (
+        "human", 
+        "Given the text below: \n```" + initial_response + "``` \n Recite the relevant parts given the following question: \n ``` " + question_for_RAG + " ```"
+    ),
+]
+ai_msg = llm.invoke(messages)
+print(ai_msg.content)
