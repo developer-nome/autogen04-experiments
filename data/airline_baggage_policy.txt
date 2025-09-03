@@ -5,7 +5,7 @@ ACME Airlines Baggage Policy
 * Carry-On Baggage Policy
 
 Each ACME passenger is allowed to carry on:
-- 1 carry-on bag (max dimensions: 30” x 20” x 10”; max weight: 10 kg / 22 lbs)
+- 1 carry-on bag (max dimensions: 22” x 14” x 9”; max weight: 10 kg / 22 lbs)
 - 1 personal item (e.g., handbag, laptop bag, or small backpack; must fit under the seat in front of you)
 
 Tip: If it fits in the ACME overhead bin or under your ACME seat, you’re golden.
